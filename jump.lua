@@ -3,141 +3,262 @@ local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
-local MAX_JUMP = 1000000
 local NORMAL_JUMP = 50
+local MAX_JUMP = 1000000
 
 local jumpPower = NORMAL_JUMP
 local enabled = false
 
+--==================================================
 -- GUI
+--==================================================
+
 local gui = Instance.new("ScreenGui")
 gui.Name = "HighJumpGUI"
 gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Main window
+-- Main box
 local main = Instance.new("Frame")
-main.Size = UDim2.fromOffset(310, 155)
-main.Position = UDim2.new(1, -330, 0, 40)
+main.Name = "Main"
+main.Size = UDim2.fromOffset(300, 155)
+main.Position = UDim2.new(0.5, -150, 0.5, -77)
 main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 main.BorderSizePixel = 0
-main.Active = true
 main.Parent = gui
 
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = main
 
--- Title
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -80, 0, 40)
-title.Position = UDim2.fromOffset(10, 0)
-title.BackgroundTransparency = 1
-title.Text = "HIGH JUMP"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.TextSize = 20
-title.Font = Enum.Font.GothamBold
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Active = true
-title.Parent = main
+--==================================================
+-- TITLE / DRAG BAR
+--==================================================
 
--- Close button
+local dragBar = Instance.new("TextButton")
+dragBar.Name = "DragBar"
+dragBar.Size = UDim2.new(1, -45, 0, 40)
+dragBar.Position = UDim2.fromOffset(0, 0)
+dragBar.BackgroundTransparency = 1
+dragBar.Text = "HIGH JUMP"
+dragBar.TextColor3 = Color3.new(1, 1, 1)
+dragBar.TextSize = 20
+dragBar.Font = Enum.Font.GothamBold
+dragBar.Parent = main
+
+--==================================================
+-- CLOSE BUTTON
+--==================================================
+
 local close = Instance.new("TextButton")
-close.Size = UDim2.fromOffset(32, 32)
-close.Position = UDim2.new(1, -38, 0, 4)
-close.Text = "X"
-close.TextSize = 15
-close.TextColor3 = Color3.new(1, 1, 1)
+close.Size = UDim2.fromOffset(35, 35)
+close.Position = UDim2.new(1, -40, 0, 3)
 close.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+close.Text = "X"
+close.TextColor3 = Color3.new(1, 1, 1)
+close.TextSize = 16
+close.Font = Enum.Font.GothamBold
 close.Parent = main
 
-Instance.new("UICorner", close).CornerRadius = UDim.new(0, 7)
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 7)
+closeCorner.Parent = close
 
--- Input
+--==================================================
+-- NUMBER BOX
+--==================================================
+
 local input = Instance.new("TextBox")
-input.Size = UDim2.fromOffset(190, 40)
-input.Position = UDim2.fromOffset(15, 50)
-input.PlaceholderText = "Jump Power (max 1,000,000)"
-input.Text = ""
-input.TextColor3 = Color3.new(1, 1, 1)
-input.PlaceholderColor3 = Color3.fromRGB(160, 160, 160)
+input.Size = UDim2.fromOffset(185, 42)
+input.Position = UDim2.fromOffset(12, 50)
 input.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-input.TextSize = 15
+input.TextColor3 = Color3.new(1, 1, 1)
+input.PlaceholderColor3 = Color3.fromRGB(170, 170, 170)
+input.PlaceholderText = "Jump Power"
+input.Text = ""
+input.TextSize = 16
 input.ClearTextOnFocus = false
 input.Parent = main
 
-Instance.new("UICorner", input).CornerRadius = UDim.new(0, 8)
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0, 8)
+inputCorner.Parent = input
 
--- OK
+--==================================================
+-- OK BUTTON
+--==================================================
+
 local ok = Instance.new("TextButton")
-ok.Size = UDim2.fromOffset(75, 40)
-ok.Position = UDim2.fromOffset(220, 50)
+ok.Size = UDim2.fromOffset(85, 42)
+ok.Position = UDim2.fromOffset(205, 50)
+ok.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
 ok.Text = "OK"
 ok.TextColor3 = Color3.new(1, 1, 1)
 ok.TextSize = 16
-ok.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+ok.Font = Enum.Font.GothamBold
 ok.Parent = main
 
-Instance.new("UICorner", ok).CornerRadius = UDim.new(0, 8)
+local okCorner = Instance.new("UICorner")
+okCorner.CornerRadius = UDim.new(0, 8)
+okCorner.Parent = ok
 
--- Toggle
+--==================================================
+-- ON/OFF BUTTON
+--==================================================
+
 local toggle = Instance.new("TextButton")
-toggle.Size = UDim2.new(1, -30, 0, 45)
-toggle.Position = UDim2.fromOffset(15, 100)
+toggle.Size = UDim2.new(1, -24, 0, 45)
+toggle.Position = UDim2.fromOffset(12, 102)
+toggle.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
 toggle.Text = "HIGH JUMP: OFF"
 toggle.TextColor3 = Color3.new(1, 1, 1)
 toggle.TextSize = 17
 toggle.Font = Enum.Font.GothamBold
-toggle.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
 toggle.Parent = main
 
-Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 8)
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 8)
+toggleCorner.Parent = toggle
 
--- Round restore button
+--==================================================
+-- ROUND RESTORE BUTTON
+--==================================================
+
 local restore = Instance.new("TextButton")
-restore.Size = UDim2.fromOffset(58, 58)
-restore.Position = UDim2.new(1, -75, 0, 40)
+restore.Name = "RestoreButton"
+restore.Size = UDim2.fromOffset(60, 60)
+restore.Position = UDim2.new(0.5, -30, 0.5, -30)
+restore.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 restore.Text = "HJ"
 restore.TextColor3 = Color3.new(1, 1, 1)
-restore.TextSize = 16
+restore.TextSize = 17
 restore.Font = Enum.Font.GothamBold
-restore.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 restore.Visible = false
-restore.Active = true
 restore.Parent = gui
 
-Instance.new("UICorner", restore).CornerRadius = UDim.new(1, 0)
+local restoreCorner = Instance.new("UICorner")
+restoreCorner.CornerRadius = UDim.new(1, 0)
+restoreCorner.Parent = restore
 
--- Apply jump
-local function applyJump()
-	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+--==================================================
+-- DRAG FUNCTION
+--==================================================
 
-	if humanoid then
-		humanoid.UseJumpPower = true
+local function makeDraggable(handle, object)
 
-		if enabled then
-			humanoid.JumpPower = jumpPower
-		else
-			humanoid.JumpPower = NORMAL_JUMP
+	local dragging = false
+	local dragStart
+	local startPosition
+
+	handle.InputBegan:Connect(function(inputObject)
+
+		if inputObject.UserInputType == Enum.UserInputType.MouseButton1
+			or inputObject.UserInputType == Enum.UserInputType.Touch then
+
+			dragging = true
+			dragStart = inputObject.Position
+			startPosition = object.Position
+
+			inputObject.Changed:Connect(function()
+
+				if inputObject.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+
+			end)
 		end
-	end
+
+	end)
+
+	UserInputService.InputChanged:Connect(function(inputObject)
+
+		if not dragging then
+			return
+		end
+
+		if inputObject.UserInputType == Enum.UserInputType.MouseMovement
+			or inputObject.UserInputType == Enum.UserInputType.Touch then
+
+			local delta = inputObject.Position - dragStart
+
+			object.Position = UDim2.new(
+				startPosition.X.Scale,
+				startPosition.X.Offset + delta.X,
+
+				startPosition.Y.Scale,
+				startPosition.Y.Offset + delta.Y
+			)
+		end
+
+	end)
 end
 
--- OK button
-ok.MouseButton1Click:Connect(function()
-	local value = tonumber(input.Text)
+-- Main window moves from title
+makeDraggable(dragBar, main)
 
-	if value then
-		jumpPower = math.clamp(value, 1, MAX_JUMP)
-		input.Text = tostring(jumpPower)
+-- Restore circle moves by itself
+makeDraggable(restore, restore)
 
-		if enabled then
-			applyJump()
-		end
+--==================================================
+-- APPLY JUMP POWER
+--==================================================
+
+local function applyJumpPower()
+
+	local character = player.Character
+
+	if not character then
+		return
 	end
+
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+	if not humanoid then
+		return
+	end
+
+	humanoid.UseJumpPower = true
+
+	if enabled then
+		humanoid.JumpPower = jumpPower
+	else
+		humanoid.JumpPower = NORMAL_JUMP
+	end
+
+end
+
+--==================================================
+-- OK
+--==================================================
+
+ok.Activated:Connect(function()
+
+	local number = tonumber(input.Text)
+
+	if not number then
+		input.Text = tostring(jumpPower)
+		return
+	end
+
+	number = math.floor(number)
+
+	jumpPower = math.clamp(number, 1, MAX_JUMP)
+
+	input.Text = tostring(jumpPower)
+
+	if enabled then
+		applyJumpPower()
+	end
+
 end)
 
--- Toggle
-toggle.MouseButton1Click:Connect(function()
+--==================================================
+-- TOGGLE
+--==================================================
+
+toggle.Activated:Connect(function()
+
 	enabled = not enabled
 
 	if enabled then
@@ -146,69 +267,44 @@ toggle.MouseButton1Click:Connect(function()
 		toggle.Text = "HIGH JUMP: OFF"
 	end
 
-	applyJump()
+	applyJumpPower()
+
 end)
 
--- Close
-close.MouseButton1Click:Connect(function()
+--==================================================
+-- CLOSE / RESTORE
+--==================================================
+
+close.Activated:Connect(function()
+
 	main.Visible = false
 	restore.Visible = true
+
 end)
 
--- Restore
-restore.MouseButton1Click:Connect(function()
+restore.Activated:Connect(function()
+
 	main.Visible = true
 	restore.Visible = false
+
 end)
 
--- Make something draggable
-local function makeDraggable(object, moveObject)
-	local dragging = false
-	local dragStart
-	local startPosition
+--==================================================
+-- CHARACTER RESPAWN
+--==================================================
 
-	object.InputBegan:Connect(function(inputObject)
-		if inputObject.UserInputType == Enum.UserInputType.MouseButton1
-			or inputObject.UserInputType == Enum.UserInputType.Touch then
+player.CharacterAdded:Connect(function(character)
 
-			dragging = true
-			dragStart = inputObject.Position
-			startPosition = moveObject.Position
+	local humanoid = character:WaitForChild("Humanoid")
 
-			inputObject.Changed:Connect(function()
-				if inputObject.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
+	task.wait(0.2)
 
-	UserInputService.InputChanged:Connect(function(inputObject)
-		if dragging and (
-			inputObject.UserInputType == Enum.UserInputType.MouseMovement
-			or inputObject.UserInputType == Enum.UserInputType.Touch
-		) then
+	humanoid.UseJumpPower = true
 
-			local delta = inputObject.Position - dragStart
+	if enabled then
+		humanoid.JumpPower = jumpPower
+	else
+		humanoid.JumpPower = NORMAL_JUMP
+	end
 
-			moveObject.Position = UDim2.new(
-				startPosition.X.Scale,
-				startPosition.X.Offset + delta.X,
-				startPosition.Y.Scale,
-				startPosition.Y.Offset + delta.Y
-			)
-		end
-	end)
-end
-
--- Main window can be moved using the title
-makeDraggable(title, main)
-
--- Round HJ button can also be moved
-makeDraggable(restore, restore)
-
--- Respawn support
-player.CharacterAdded:Connect(function()
-	task.wait(0.5)
-	applyJump()
 end)
